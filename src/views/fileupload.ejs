@@ -1,0 +1,381 @@
+<%- include('./partials/header.ejs') %>
+
+  <style>
+    .file-upload-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .file-upload-container input[type="file"],
+    .file-upload-container button {
+      margin-bottom: 10px;
+      /* Add a margin between the elements */
+    }
+
+    .file-upload-container button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .file-upload-container button:hover {
+      background-color: #0056b3;
+    }
+
+    @import 'https://fonts.googleapis.com/css?family=Open+Sans:600,700';
+
+    * {
+      font-family: 'Open Sans', sans-serif;
+    }
+
+    .btn1 {
+      color: #e8e8e8;
+      text-decoration: none;
+      padding: 10px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(-45deg, #f89b29 0%, #ff0f7b 100%);
+      border-radius: 5px;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn1:hover {
+      color: #212121;
+      background: #e8e8e8;
+    }
+
+    .rwd-table {
+      margin: auto;
+      min-width: 300px;
+      max-width: 100%;
+      border-collapse: collapse;
+    }
+
+    .rwd-table tr:first-child {
+      border-top: none;
+      background: linear-gradient(-45deg, #f89b29 0%, #ff0f7b 100%);
+      color: #fff;
+    }
+
+    .rwd-table tr {
+      border-top: 1px solid #ddd;
+      border-bottom: 1px solid #ddd;
+      background-color: #f5f9fc;
+    }
+
+    .rwd-table tr:nth-child(odd):not(:first-child) {
+      background-color: #ebf3f9;
+    }
+
+    .rwd-table th {
+      display: none;
+    }
+
+    .rwd-table td {
+      display: block;
+    }
+
+    .rwd-table td:first-child {
+      margin-top: .5em;
+    }
+
+    .rwd-table td:last-child {
+      margin-bottom: .5em;
+    }
+
+    .rwd-table td:before {
+      content: attr(data-th) ": ";
+      font-weight: bold;
+      width: 120px;
+      display: inline-block;
+      color: #000;
+    }
+
+    .rwd-table th,
+    .rwd-table td {
+      text-align: left;
+    }
+
+    .rwd-table {
+      color: #333;
+      border-radius: .4em;
+      overflow: hidden;
+    }
+
+    .rwd-table tr {
+      border-color: #bfbfbf;
+    }
+
+    .rwd-table th,
+    .rwd-table td {
+      padding: .5em 1em;
+    }
+
+    @media screen and (max-width: 601px) {
+      .rwd-table tr:nth-child(2) {
+        border-top: none;
+      }
+    }
+
+    @media screen and (min-width: 600px) {
+      .rwd-table tr:hover:not(:first-child) {
+        background-color: #d8e7f3;
+      }
+
+      .rwd-table td:before {
+        display: none;
+      }
+
+      .rwd-table th,
+      .rwd-table td {
+        display: table-cell;
+        padding: .25em .5em;
+      }
+
+      .rwd-table th:first-child,
+      .rwd-table td:first-child {
+        padding-left: 0;
+      }
+
+      .rwd-table th:last-child,
+      .rwd-table td:last-child {
+        padding-right: 0;
+      }
+
+      .rwd-table th,
+      .rwd-table td {
+        padding: 1em !important;
+      }
+    }
+
+
+    /* THE END OF THE IMPORTANT STUFF */
+
+    /* Basic Styling */
+
+    h1 {
+      text-align: center;
+      font-size: 2.4em;
+      color: #f2f2f2;
+    }
+
+    .container {
+      display: block;
+      text-align: center;
+    }
+
+    @-webkit-keyframes leftRight {
+      0% {
+        -webkit-transform: translateX(0)
+      }
+
+      25% {
+        -webkit-transform: translateX(-10px)
+      }
+
+      75% {
+        -webkit-transform: translateX(10px)
+      }
+
+      100% {
+        -webkit-transform: translateX(0)
+      }
+    }
+
+    @keyframes leftRight {
+      0% {
+        transform: translateX(0)
+      }
+
+      25% {
+        transform: translateX(-10px)
+      }
+
+      75% {
+        transform: translateX(10px)
+      }
+
+      100% {
+        transform: translateX(0)
+      }
+    }
+  </style>
+  </head>
+
+  <body>
+    <%- include('./partials/navbar.ejs') %>
+    <div style="margin-top: 100px;">
+      <div style="display: inline-block; width: 50%;">
+          <div class="file-upload-container">         
+              <input class="btn1" type="file" id="fileUpload" accept=".xls,.xlsx" /><br />
+              <button class="btn1" type="button" id="uploadExcel">Convert</button>
+          </div>
+          <div id="tableContainer"></div>
+          <button class="btn1" type="button" id="updateData" style="display: none;">Update Data</button>
+      </div>
+      <div style="display: inline-block; width: 50%;">
+          <div id="uploadedDataContainer"></div>
+      </div>
+  </div>
+      <script>
+        var selectedFile;
+
+        document.getElementById("fileUpload").addEventListener("change", function (event) {
+          selectedFile = event.target.files[0];
+        });
+
+        document.getElementById("uploadExcel").addEventListener("click", function () {
+          if (selectedFile) {
+            var fileReader = new FileReader();
+            fileReader.onload = function (event) {
+              var data = event.target.result;
+
+              var workbook = XLSX.read(data, { type: "binary" });
+              var jsonData = {};
+
+              workbook.SheetNames.forEach(sheet => {
+                jsonData[sheet] = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]);
+              });
+              console.log(jsonData);
+              // Send JSON data to the backend
+              //sendDataToBackend(jsonData);
+              displayDataAsTable(jsonData);
+              fetchDatabaseData()
+              // Show the "Update Data" button
+              document.getElementById("updateData").style.display = "block";
+            };
+            fileReader.readAsBinaryString(selectedFile);
+          }
+        });
+
+
+
+
+      </script>
+
+      <script>
+        function displayDataAsTable(data) {
+          var tableContainer = document.getElementById("tableContainer");
+          tableContainer.innerHTML = "";
+
+          for (var sheetName in data) {
+            if (data.hasOwnProperty(sheetName)) {
+              var table = document.createElement("table");
+              table.className = "rwd-table"; // Add class to the table
+              table.style.marginTop = "50px"; // Add style to the table
+              var thead = document.createElement("thead");
+              var tbody = document.createElement("tbody");
+
+              // Create table header
+              var headerRow = document.createElement("tr");
+              for (var header in data[sheetName][0]) {
+                var th = document.createElement("th");
+                th.textContent = header;
+                headerRow.appendChild(th);
+              }
+              thead.appendChild(headerRow);
+
+              // Create table rows
+              data[sheetName].forEach(function (rowData) {
+                var row = document.createElement("tr");
+                for (var key in rowData) {
+                  var cell = document.createElement("td");
+                  cell.textContent = rowData[key];
+                  row.appendChild(cell);
+                }
+                tbody.appendChild(row);
+              });
+
+              table.appendChild(thead);
+              table.appendChild(tbody);
+              tableContainer.appendChild(table);
+            }
+          }
+        }
+
+        function displayDatabaseData(data) {
+    var databaseDataContainer = document.getElementById("uploadedDataContainer");
+    databaseDataContainer.innerHTML = "<h2>Database Data</h2>";
+
+    var table = document.createElement("table");
+    table.className = "rwd-table";
+    var thead = document.createElement("thead");
+    var tbody = document.createElement("tbody");
+
+    // Create table header
+    var headerRow = document.createElement("tr");
+    var keysToDisplay = ["position", "user_name", "points"]; // Specify the keys to display
+    keysToDisplay.forEach(function (key) {
+        var th = document.createElement("th");
+        th.textContent = key;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+
+    // Create table rows
+    data.forEach(function (rowData) {
+        var row = document.createElement("tr");
+        keysToDisplay.forEach(function (key) {
+            var cell = document.createElement("td");
+            cell.textContent = rowData[key];
+            row.appendChild(cell);
+        });
+        tbody.appendChild(row);
+    });
+
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    databaseDataContainer.appendChild(table);
+}
+        function fetchDatabaseData() {
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", "http://localhost:5001/getdata", true);
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+              var databaseData = JSON.parse(xhr.responseText);
+              displayDatabaseData(databaseData);
+            }
+          };
+          xhr.send();
+        }
+
+
+      </script>
+      <script>
+        function sendDataToAdd(data) {
+          var xhr = new XMLHttpRequest();
+          xhr.open("POST", "http://localhost:5001/exceltojson", true);
+          xhr.setRequestHeader("Content-Type", "application/json");
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+              console.log(xhr.data);
+              console.log("Data saved successfully");
+            }
+          };
+          xhr.send(JSON.stringify(data));
+        }
+
+        function sendDataToUpdate(data) {
+          var xhr = new XMLHttpRequest();
+          xhr.open("POST", "http://localhost:5001/updatePoints", true);
+          xhr.setRequestHeader("Content-Type", "application/json");
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+              console.log(xhr.data);
+              console.log("Data saved successfully");
+            }
+          };
+          xhr.send(JSON.stringify(data));
+        }
+
+
+      </script>
+
+  </body>
+
+  </html>

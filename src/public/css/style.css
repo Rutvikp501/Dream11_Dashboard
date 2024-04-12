@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+:root {
+	--dark-color-a:linear-gradient(to right, #677bec, #3f24d8);
+	--test-clr:#919299;
+	--box-color: linear-gradient(to right, #069db8, #0462a1);
+	/*
+	--dark-color-a: #667aff;
+	*/
+	--dark-color-b:	#047a8f;
+    --varyDarkBlue: #242d7f;
+	--light-color: linear-gradient(to right, #069db8, #0462a1);
+	--light-color-a: linear-gradient(to right, #069db8, #0462a1);
+
+	--success-color: #5c93b8;
+	--error-color: #d9534f;
+
+}
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+    font-size: 15px;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to top right, #14143A,#4D4DBA);
+}
+
+ul {
+	list-style: none;
+}
+
+a {
+	text-decoration: none;
+}
+
+span {
+	margin-left: 5px;
+}
+
+
+nav {
+	background-color:var(--light-color-a);
+	padding: 20px;
+
+}
+
+nav:hover {
+	cursor: pointer;
+	color: var(--test-clr)!important;
+}
+
+nav a {
+	color: var(--test-clr)!important;
+	font-weight: bold;
+}
+
+
+.hover-btn-dark:hover {
+	background-color: #3a312f
+}
+
+
+
+.buttons {
+	display: flex;
+	flex-direction: column;
+	margin-top: 20px;
+}
+
