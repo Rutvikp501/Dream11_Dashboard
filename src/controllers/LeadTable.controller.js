@@ -1,8 +1,28 @@
-const totalpointsModel = require('../models/leadboard');
+
+const MatchData = require('../models/matchdata');
+const PlayerTotal = require('../models/PlayerTotal');
+
 
 exports.Leadtable = async (req, res, next) => {
-    const data = await totalpointsModel.find(); 
-    res.render("Leadtable",{ data: data })
+    SortmatchesData()
+    MatchDetailsForAllMatches()
+    const data = await PlayerTotal.find(); 
+    const sortdata = await PlayerTotal.find().sort({ totalPoints: -1 }); 
+
+   // console.log(data);
+    res.render("Leadtable",{ data: sortdata })
+}
+
+exports.Stats = async (req, res, next) => {
+    try {
+        const MatchDetails = await MatchDetailsForAllMatches();
+        const Matdata = await MatchData.find(); 
+        const Pladata = await PlayerTotal.find(); 
+        res.render("Stats", { Matdata: Matdata, Pladata: Pladata, MatchDetails: MatchDetails });
+    } catch (error) {
+        console.error('Error rendering Stats:', error);
+        res.status(500).send('Internal Server Error');
+    }
 }
 
 exports.Getdata =  async (req, res) => {
@@ -20,7 +40,7 @@ exports.Getdata =  async (req, res) => {
 
 exports.fileupload = async (req, res, next) => {
     try {
-         const data = await totalpointsModel.find(); 
+         const data = await MatchData.find(); 
          res.render("fileupload", { data: data });
         // res.render("fileupload");
     } catch (error) {
@@ -61,7 +81,7 @@ exports.UpdatePoints = async (req, res, next) => {
     try {
         const jsonData = req.body; // Assuming req.body contains the JSON data from frontend
         const sheetData = jsonData.Sheet1; // Assuming the data is in Sheet1
-        
+        console.log(sheetData);
         // Iterate through the data
         for (const entry of sheetData) {
             const { Team, Points } = entry;
@@ -101,3 +121,244 @@ exports.UpdatePoints = async (req, res, next) => {
         res.status(500).send('Internal Server Error');
     }
 }
+
+
+
+exports.insertMatchData = async (req, res, next) => {
+    const jsonData = req.body;
+    try {
+        for (const sheetName in jsonData) {
+            if (jsonData.hasOwnProperty(sheetName)) {
+                const sheetData = jsonData[sheetName];
+                for (const entry of sheetData) {
+                    // Check if the entry has a match field
+                    if (entry['match ']) {
+                        const { date, 'match ': match, ishan, diyan, kj2004, vedant, aryan, vishesh, shreyans, hitanshu } = entry;
+                        // Create an array of players with their points
+                        const playersData = [
+                            { name: 'ishan', points: ishan },
+                            { name: 'diyan', points: diyan },
+                            { name: 'kj2004', points: kj2004 },
+                            { name: 'vedant', points: vedant },
+                            { name: 'aryan', points: aryan },
+                            { name: 'vishesh', points: vishesh },
+                            { name: 'shreyans', points: shreyans },
+                            { name: 'hitanshu', points: hitanshu }
+                        ];
+
+                        // Check if the data already exists in the database
+                        const existingMatch = await MatchData.findOne({ date: date, match: match });
+
+                        if (existingMatch) {
+                            // Update existing match data
+                            existingMatch.players = playersData;
+                            await existingMatch.save();
+                            console.log('Match data updated successfully');
+                        } else {
+                            // Create a new MatchData object and save it to the database
+                            const matchData = new MatchData({
+                                date: date,
+                                match: match,
+                                players: playersData
+                            });
+                            await matchData.save();
+                           // console.log('Match data inserted successfully');
+                        }
+                    } else {
+                        console.log('Skipping entry without a match field');
+                    }
+                }
+            }
+        }
+
+    } catch (error) {
+        console.error('Error inserting/updating match data:', error);
+    }
+};
+
+
+
+
+async function SortmatchesData() {
+
+    const matchesData = await MatchData.find();
+    try {
+        // Create an object to store total points for each player
+        const playersTotalPoints = {};
+
+        // Iterate over matchesData array
+        matchesData.forEach((match) => {
+            // Iterate over players array in each match
+            match.players.forEach((player) => {
+                // Check if player.points exists and is not undefined
+                if (player.points !== undefined) {
+                    // Update total points for each player
+                    if (playersTotalPoints[player.name]) {
+                        playersTotalPoints[player.name] += player.points;
+                    } else {
+                        playersTotalPoints[player.name] = player.points;
+                    }
+                }
+            });
+        });
+
+        // Update player total points in the database
+        for (const playerName in playersTotalPoints) {
+            if (Object.hasOwnProperty.call(playersTotalPoints, playerName)) {
+                const totalPoints = playersTotalPoints[playerName];
+                // Call the function to update player total points
+                await updatePlayerTotal(playerName, totalPoints);
+            }
+        }
+    } catch (error) {
+        console.error('Error updating player total points:', error);
+    }
+}
+
+
+async function updatePlayerTotal(playerName, totalPoints) {
+    try {
+        // Find the player's document in PlayerTotal collection
+        let playerTotal = await PlayerTotal.findOne({ name: playerName });
+
+        if (playerTotal) {
+            // If the player exists, update the total points
+            playerTotal.totalPoints = totalPoints;
+        } else {
+            // If the player doesn't exist, create a new document
+            playerTotal = new PlayerTotal({
+                name: playerName,
+                totalPoints: totalPoints
+            });
+        }
+
+        // Save the updated/created document
+        await playerTotal.save();
+    } catch (error) {
+        console.error(`Error updating player total points for ${playerName}:`, error);
+    }
+    console.log(`Player total points updated successfully`);
+}
+
+
+
+
+exports.insertPlayerTotal =  async (req, res) => {
+    const jsonData = req.body; // Assuming req.body contains the JSON data from frontend
+    const sheetData = jsonData.Sheet1; // Assuming the data is in Sheet1
+    try {
+        // Create an array to hold all bulk write operations
+        const bulkOperations = [];
+
+        // Iterate over playersData array
+        playersData.forEach(async (player) => {
+            // Find the player's document in PlayerTotal collection
+            const playerTotal = await PlayerTotal.findOne({ name: player.name });
+
+            if (playerTotal) {
+                // If the player exists, update the total points
+                playerTotal.totalPoints += player.points;
+                // Add update operation to the bulkOperations array
+                bulkOperations.push({
+                    updateOne: {
+                        filter: { _id: playerTotal._id },
+                        update: { $set: { totalPoints: playerTotal.totalPoints } }
+                    }
+                });
+            } else {
+                // If the player doesn't exist, create a new document
+                // Add insert operation to the bulkOperations array
+                bulkOperations.push({
+                    insertOne: {
+                        document: {
+                            name: player.name,
+                            totalPoints: player.points
+                        }
+                    }
+                });
+            }
+        });
+
+        // Execute bulk write operations
+        await PlayerTotal.bulkWrite(bulkOperations);
+        console.log('Player total points updated successfully');
+    } catch (error) {
+        console.error('Error updating player total points:', error);
+    }
+};
+
+async function MatchDetails()  {
+    try {
+        // Retrieve the match name from the database field
+        const matchData = await MatchData.findOne({}); // Assuming you want to get the first match data, you can adjust this query based on your requirements
+        
+        if (!matchData) {
+            return res.status(404).send('Match data not found');
+        }
+
+        const matchName = matchData.match; // Assuming the match name is stored in the "match" field of the match data document
+
+        // Extract player names and points from the match data
+        const playerDetails = matchData.players.map(player => ({
+            name: player.name,
+            points: player.points
+        }));
+
+        // Respond with the player details for the specific match
+        console.log(matchName ,playerDetails );
+        // res.json({
+        //     match: matchName,
+        //     players: playerDetails
+        // });
+    } catch (error) {
+        console.error('Error fetching match details:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+async function MatchDetailsForAllMatches() {
+    try {
+        const matchDetails = await MatchData.aggregate([
+            {
+                $group: {
+                    _id: '$match',
+                    date: { $first: '$date' }, // Get the date of the first document in each group
+                    players: {
+                        $push: {
+                            name: '$players.name',
+                            points: '$players.points'
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    match: '$_id',
+                    date: 1,
+                    _id: 0,
+                    players: 1
+                }
+            }
+        ]);
+
+        const formattedData = matchDetails.map(match => {
+            const players = match.players[0];
+            const data = players.name.map((name, index) => ({
+                match: match.match,
+                date: match.date, // Include the date
+                playerName: name,
+                points: players.points[index]
+            }));
+            console.log(data);
+            return data;
+        }).flat();
+
+        return formattedData;
+    } catch (error) {
+        console.error('Error fetching match details for all matches:', error);
+        throw error; // Throw the error to be caught by the caller
+    }
+};
+
+
+

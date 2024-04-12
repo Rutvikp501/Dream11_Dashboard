@@ -1,13 +1,93 @@
-<%- include('./partials/header.ejs') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Performance Chart</title>
+    <!-- Include ApexCharts library -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body>
+    <h1>Player Performance Chart</h1>
+    <!-- Container for the chart -->
+    <div id="chart"></div>
 
+    <script>
+        // Get MatchDetails data from server-side rendering
+        const MatchDetails = <%- JSON.stringify(MatchDetails) %>;
+       console.log(MatchDetails);
 
-    </head>
+        // Chart options and data
+        function generateDayWiseTimeSeries(baseval, count, yrange) {
+            let i = 0;
+            let series = [];
+            while (i < count) {
+                let x = baseval;
+                let y = MatchDetails.match;
 
-    <body>
-        <%- include('./partials/navbar.ejs') %>
-        <div style="margin-top: 100px;">
-            <h1>stats analytics </h1>
-        </div>
-    </body>
+                series.push([x, y]);
+                baseval += 86400000;
+                i++;
+            }
+            return series;
+        }
 
-    </html>
+        // Prepare chart data from MatchDetails array
+        const chartData = [];
+        MatchDetails.forEach(player => {
+            chartData.push({
+                name: player.playerName,
+                data: generateDayWiseTimeSeries(new Date().getTime(), 20, {
+                    min: 10,
+                    max: player.points // Use player's points as max value for chart
+                })
+            });
+        });
+
+        // Define chart options
+        const options = {
+            series: chartData,
+            chart: {
+                type: 'line',
+                height: 350,
+                stacked: false,
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                width: [1, 1, 1, 1]
+            },
+            title: {
+                text: 'Player Performance Chart',
+                align: 'left',
+                offsetX: 110
+            },
+            xaxis: {
+                type: 'datetime',
+            },
+            yaxis: {
+                title: {
+                    text: 'Points',
+                },
+            },
+            tooltip: {
+                shared: true,
+                intersect: false,
+                y: {
+                    formatter: function (y) {
+                        if (typeof y !== 'undefined') {
+                            return y.toFixed(0) + ' points';
+                        }
+                        return y;
+                    }
+                }
+            }
+        };
+
+        // Render the chart
+        const chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+    </script>
+</body>
+</html>

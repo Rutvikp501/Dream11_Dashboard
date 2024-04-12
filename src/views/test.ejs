@@ -210,12 +210,11 @@
           <div class="file-upload-container">
             <input class="btn1" type="file" id="fileUpload" accept=".xls,.xlsx" /><br />
             <button class="btn1" type="button" id="uploadExcel">Convert</button>
-            <button class="btn1" type="button" id="updateData" style="display: none;" >Update Data</button>
           </div>
           <div class="container">
             <div class="table-container" id="tableContainer"></div>
           </div>
-          
+          <button class="btn1" type="button" id="updateData" style="display: none;" onclick="sendDataToUpdate(jsonData)">Update Data</button>
 
         </div>
         <script>
@@ -240,44 +239,16 @@
                 });
                 
                 // Send JSON data to the backend
-
-                //insertMatchData(jsonData);
-                displayDataAsTable(jsonData);
-
-                document.getElementById("updateData").style.display = "block";
-              };
-              fileReader.readAsBinaryString(selectedFile);
-            }
-
-          });
-
-
-          document.getElementById("updateData").addEventListener("click", function () {
-            if (selectedFile) {
-              var fileReader = new FileReader();
-              fileReader.onload = function (event) {
-                var data = event.target.result;
-
-                var workbook = XLSX.read(data, { type: "binary" });
-                var jsonData = {};
-
-                workbook.SheetNames.forEach(sheet => {
-                  jsonData[sheet] = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]);
-                  
-                });
-                
-                // Send JSON data to the backend
-
+                //sendDataToBackend(jsonData);
+                //sendDataToUpdate(jsonData);
                 insertMatchData(jsonData);
-                //displayDataAsTable(jsonData);
-
+                displayDataAsTable(jsonData);
+                //fetchDatabaseData()
+                // Show the "Update Data" button
                 document.getElementById("updateData").style.display = "block";
               };
               fileReader.readAsBinaryString(selectedFile);
             }
-                        setTimeout(() => {
-              window.location.href = "/leadtable";
-            }, 1000);
           });
 
 
@@ -325,8 +296,87 @@
             }
           }
 
+
+
+          function displayDatabaseData(data) {
+            var databaseDataContainer = document.getElementById("uploadedDataContainer");
+            databaseDataContainer.innerHTML = "<h2>Database Data</h2>";
+
+            var table = document.createElement("table");
+            table.className = "rwd-table";
+            var thead = document.createElement("thead");
+            var tbody = document.createElement("tbody");
+
+            // Create table header
+            var headerRow = document.createElement("tr");
+            var keysToDisplay = ["position", "user_name", "points"]; // Specify the keys to display
+            keysToDisplay.forEach(function (key) {
+              var th = document.createElement("th");
+              th.textContent = key;
+              headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+
+            // Create table rows
+            data.forEach(function (rowData) {
+              var row = document.createElement("tr");
+              keysToDisplay.forEach(function (key) {
+                var cell = document.createElement("td");
+                cell.textContent = rowData[key];
+                row.appendChild(cell);
+              });
+              tbody.appendChild(row);
+            });
+
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            databaseDataContainer.appendChild(table);
+          }
+
+
+          function fetchDatabaseData() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "http://localhost:5001/getdata", true);
+            xhr.onreadystatechange = function () {
+              if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                var databaseData = JSON.parse(xhr.responseText);
+                displayDatabaseData(databaseData);
+              }
+            };
+            xhr.send();
+          }
+
+
         </script>
         <script>
+          function sendDataToAdd(data) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://localhost:5001/exceltojson", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+              if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                console.log(xhr.data);
+                console.log("Data saved successfully");
+              }
+            };
+            xhr.send(JSON.stringify(data));
+          }
+
+          function sendDataToUpdate(data) {
+            console.log('sendDataToUpdate');
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://localhost:5001/updatePoints", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+              if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                console.log(xhr.data);
+                console.log("Data saved successfully");
+              }
+            };
+            xhr.send(JSON.stringify(data));
+          }
+
+
           function insertMatchData(data) {
             console.log('sendDataToUpdate');
             var xhr = new XMLHttpRequest();

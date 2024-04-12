@@ -141,9 +141,8 @@ h1 {
                     <tbody>
                       <% data.forEach(function(entry) { %>
                           <tr>
-                              <td data-th="Position"><%= entry.position %></td>
-                              <td data-th="Team Name"><%= entry.user_name %></td>
-                              <td data-th="Points"><%= entry.points %></td>
+                              <td data-th="Position"><%= entry.name %></td>
+                              <td data-th="Team Name"><%= entry.totalPoints %></td>
                           </tr>
                       <% }); %>
                   </tbody>

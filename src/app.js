@@ -21,10 +21,12 @@ app.set('views', path.join(__dirname, 'views'));
 
 //middleware
 app.get('/leadtable',Leadtable.Leadtable);
-app.get('/stats',Stats.Stats);
+app.get('/stats',Leadtable.Stats);
 app.get('/upload',Leadtable.fileupload);
 app.post('/exceltojson',Leadtable.ExcelToJson);
 app.post('/updatePoints',Leadtable.UpdatePoints);
+app.post('/insertMatchData',Leadtable.insertMatchData);
+app.post('/insertPlayerTotal',Leadtable.insertPlayerTotal);
 app.get('/getdata',Leadtable.Getdata);
 
 app.get('/' , (req,res) => {
