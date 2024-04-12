@@ -8,45 +8,42 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body>
+    <!-- //<%- include('./partials/navbar.ejs') %> -->
     <h1>Player Performance Chart</h1>
     <!-- Container for the chart -->
     <div id="chart"></div>
 
+    <!-- Embedding the MatchDetails data into the HTML -->
     <script>
         // Get MatchDetails data from server-side rendering
         const MatchDetails = <%- JSON.stringify(MatchDetails) %>;
-       console.log(MatchDetails);
 
-        // Chart options and data
-        function generateDayWiseTimeSeries(baseval, count, yrange) {
-            let i = 0;
-            let series = [];
-            while (i < count) {
-                let x = baseval;
-                let y = MatchDetails.match;
-
-                series.push([x, y]);
-                baseval += 86400000;
-                i++;
-            }
-            return series;
-        }
-
-        // Prepare chart data from MatchDetails array
-        const chartData = [];
-        MatchDetails.forEach(player => {
-            chartData.push({
-                name: player.playerName,
-                data: generateDayWiseTimeSeries(new Date().getTime(), 20, {
-                    min: 10,
-                    max: player.points // Use player's points as max value for chart
-                })
+        // Function to generate chart data
+        function generateChartData() {
+            const chartData = {};
+            MatchDetails.forEach(match => {
+                if (match.players) {
+                    match.players.forEach(player => {
+                        if (!chartData[player.name]) {
+                            chartData[player.name] = [];
+                        }
+                        const lastTotal = chartData[player.name].length > 0 ? chartData[player.name][chartData[player.name].length - 1].y : 0;
+                        chartData[player.name].push({
+                            x: match.match, // Match name as x-axis
+                            y: lastTotal + player.points || 0 // Cumulative points earned in the match as y-axis
+                        });
+                    });
+                }
             });
-        });
+            return Object.entries(chartData).map(([player, data]) => ({
+                name: player,
+                data: data
+            }));
+        }
 
         // Define chart options
         const options = {
-            series: chartData,
+            series: generateChartData(),
             chart: {
                 type: 'line',
                 height: 350,
@@ -64,11 +61,14 @@
                 offsetX: 110
             },
             xaxis: {
-                type: 'datetime',
+                type: 'category',
+                title: {
+                    text: 'Match Name',
+                },
             },
             yaxis: {
                 title: {
-                    text: 'Points',
+                    text: 'Points Earned',
                 },
             },
             tooltip: {
@@ -82,6 +82,9 @@
                         return y;
                     }
                 }
+            },
+            markers: {
+                size: 4 // Size of the data points
             }
         };
 

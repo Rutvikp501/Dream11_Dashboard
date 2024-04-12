@@ -25,6 +25,8 @@ exports.Stats = async (req, res, next) => {
     }
 }
 
+
+
 exports.Getdata =  async (req, res) => {
     try {
         // Fetch data from the database using your Mongoose model
@@ -287,6 +289,8 @@ exports.insertPlayerTotal =  async (req, res) => {
     }
 };
 
+
+
 async function MatchDetails()  {
     try {
         // Retrieve the match name from the database field
@@ -316,49 +320,35 @@ async function MatchDetails()  {
     }
 };
 
+
+
 async function MatchDetailsForAllMatches() {
     try {
-        const matchDetails = await MatchData.aggregate([
-            {
-                $group: {
-                    _id: '$match',
-                    date: { $first: '$date' }, // Get the date of the first document in each group
-                    players: {
-                        $push: {
-                            name: '$players.name',
-                            points: '$players.points'
-                        }
-                    }
-                }
-            },
-            {
-                $project: {
-                    match: '$_id',
-                    date: 1,
-                    _id: 0,
-                    players: 1
-                }
-            }
-        ]);
 
-        const formattedData = matchDetails.map(match => {
-            const players = match.players[0];
-            const data = players.name.map((name, index) => ({
+        const Matdata = await MatchData.find(); 
+        const formattedData = Matdata.map(match => {
+            return {
                 match: match.match,
-                date: match.date, // Include the date
-                playerName: name,
-                points: players.points[index]
-            }));
-            console.log(data);
-            return data;
-        }).flat();
+                date: match.date,
+                players: match.players.map(player => ({
+                    name: player.name,
+                    points: player.points
+                }))
+            };
+        });
 
-        return formattedData;
+        //res.status(200).json(formattedData);
+
+         //console.log(formattedData);
+         return formattedData;
     } catch (error) {
         console.error('Error fetching match details for all matches:', error);
         throw error; // Throw the error to be caught by the caller
     }
 };
+
+
+
 
 
 
