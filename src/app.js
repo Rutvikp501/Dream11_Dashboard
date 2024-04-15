@@ -41,6 +41,13 @@ const { env } = require('process');
 const connectDB = require('./config/db.js');
 app.use(cors({optionsSuccessStatus: 200}))
 
+app.get('/close-it',(req,res)=>{
+    res.send('closing your server......')
+    setTimeout(() => {
+        process.exit(0)
+    }, 30000);
+
+})
 app.listen(port,()=>{
     try {
         connectDB()

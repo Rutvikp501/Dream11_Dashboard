@@ -1,48 +1,130 @@
+<%- include('./header.ejs') %>
 <style>
-    header img {
-      height: 80px;
-      margin-left: 40px;
-    }
+    * {
+  box-sizing: border-box;
+}
 
-    /* body {
-    height: 125vh;
-    background-image: url('https://codetheweb.blog/assets/img/posts/style-a-navigation-bar-css/background.jpg');
-    background-size: cover;
-    font-family: sans-serif;
-    margin-top: 80px;
-    padding: 30px;
-} */
+body {
+  margin: 0px;
+  font-family: 'segoe ui';
+}
 
-    main {
-      color: white;
-    }
+.nav {
+  height: 50px;
+  width: 100%;
+  background: linear-gradient(-45deg, #25b7c4 0%, #25c481 100%);
+  position: relative;
+}
 
-    header {
-      background-color: white;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 80px;
-      display: flex;
-      align-items: center;
-      box-shadow: 0 0 25px 0 black;
-    }
+.nav > .nav-header {
+  display: inline;
+}
 
-    header * {
-      display: inline;
-    }
+.nav > .nav-header > .nav-title {
+  display: inline-block;
+  font-size: 22px;
+  color: #000000;
+  padding: 10px 10px 10px 10px;
+}
 
-    header li {
-      margin: 20px;
-    }
+.nav > .nav-btn {
+  display: none;
+}
 
-    header li a {
-      color: black;
-      text-decoration: none;
-    }
+.nav > .nav-links {
+  display: inline;
+  float: right;
+  font-size: 18px;
+}
+
+.nav > .nav-links > a {
+  display: inline-block;
+  padding: 13px 10px 13px 10px;
+  text-decoration: none;
+  color: #000000;
+}
+
+.nav > .nav-links > a:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.nav > #nav-check {
+  display: none;
+}
+
+@media (max-width:600px) {
+  .nav > .nav-btn {
+    display: inline-block;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+  }
+  .nav > .nav-btn > label {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    padding: 13px;
+  }
+  .nav > .nav-btn > label:hover,.nav  #nav-check:checked ~ .nav-btn > label {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+  .nav > .nav-btn > label > span {
+    display: block;
+    width: 25px;
+    height: 10px;
+    border-top: 2px solid #eee;
+  }
+  .nav > .nav-links {
+    position: absolute;
+    display: block;
+    width: 100%;
+    background: linear-gradient(-45deg, #25b7c4 0%, #25c481 100%);;
+    height: 0px;
+    transition: all 0.3s ease-in;
+    overflow-y: hidden;
+    top: 50px;
+    left: 0px;
+  }
+  .nav > .nav-links > a {
+    display: block;
+    width: 100%;
+  }
+  .nav > #nav-check:not(:checked) ~ .nav-links {
+    height: 0px;
+  }
+  .nav > #nav-check:checked ~ .nav-links {
+    height: calc(100vh - 50px);
+    overflow-y: auto;
+  }
+}
   </style>
-       <header>
+    </head>
+
+    <body>
+<div class="nav">
+  <input type="checkbox" id="nav-check">
+  <div class="nav-header">
+    <div class="nav-title">
+      IPL 
+    </div>
+  </div>
+  <div class="nav-btn">
+    <label for="nav-check">
+      <span></span>
+      <span></span>
+      <span></span>
+    </label>
+  </div>
+  
+  <div class="nav-links">
+  <a href="/leadtable">Lead Board</a>
+                  <a href="/allData">All Data</a>
+                  <a href="/stats">Analytics</a>
+                  <a href="/upload">Update</a>
+                  <a href="#">Contact</a>
+  </div>
+</div>
+       <!-- <header>
            <img src="../../../black-logo-transparent.png">
             <nav>
                 <ul>
@@ -53,7 +135,7 @@
                     <li><a href="#">Contact</a></li>
                 </ul>
             </nav>
-        </header>
+        </header> -->
 
     </body>
 </html>

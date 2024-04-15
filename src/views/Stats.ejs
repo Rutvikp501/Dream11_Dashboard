@@ -1,20 +1,43 @@
-<%- include('./partials/header.ejs') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPL 11</title>
+<style>
+     .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+</style>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
-<body style="background-color: #fff !important;">
-    <%- include('./partials/navbar.ejs') %>
-    <h1>Player Performance Chart</h1>
-    <!-- Container for the chart -->
-   <div style="margin-top: 100px; background-color: #fff;" >
-
-        <div id="chart"></div>
-    </div> 
-   <!-- <div style="margin-top: 100px; background-color: #fff;" >
+<%- include('./partials/navbar.ejs') %>
+<body style="background-color: #fff !important; padding-top: 80px;">
+    <!-- <div style=" max-width: 1000px;    margin: 0 auto;">
+        <div style="margin-top: 45px; background-color: #fff; padding: 20px; border-radius: 10px;">
+            
+            <div id="chart"></div>
+        </div>
+    </div>
+    <div style="max-width: 1000px; margin: 0 auto;">
+        <div style="display: flex; justify-content: space-between;">
+            <div style="width: calc(50% - 10px);">
+                <div style="margin-top: 20px; background-color: #fff; padding: 20px; border-radius: 10px;">
+                    <div id="chartPie"></div>
+                </div>
+            </div>
+            <div style="width: calc(50% - 10px);">
+                <div style="margin-top: 20px; background-color: #fff; padding: 20px; border-radius: 10px;">
+                    <div id="Column_chart"></div>
+                </div>
+            </div> 
+        </div>
+    </div> -->
+    <div id="chart"></div>
 
     <div id="chartPie"></div>
-    </div>  -->
 
-    <!-- Embedding the MatchDetails data into the HTML -->
     <script>
         // Get MatchDetails data from server-side rendering
         const MatchDetails = <%- JSON.stringify(MatchDetails) %>;
@@ -47,7 +70,7 @@
             series: generateChartData(),
             chart: {
                 type: 'line',
-                height: 350,
+                height: 380,
                 stacked: false,
             },
             dataLabels: {
@@ -112,28 +135,29 @@
                         };
                     }
                     playerStats[player.name].totalPoints += player.points; // Accumulate total points
-                    if (player.points > playerStats[player.name].highestPoints) {
+                    if (player.points >= playerStats[player.name].highestPoints) {
                         playerStats[player.name].highestPoints = player.points; // Update highest points for the player
-                        playerStats[player.name].matchesWon = 1; // Set matches won to 1 for the player
-                    } else if (player.points === playerStats[player.name].highestPoints) {
-                        playerStats[player.name].matchesWon++; // Increment matches won if points are equal (tie)
+                        if (player.points > playerStats[player.name].highestPoints) {
+                            playerStats[player.name].matchesWon = 1; // Set matches won to 1 for the player if new highest points
+                        } else {
+                            playerStats[player.name].matchesWon++; // Increment matches won if points are equal (tie)
+                        }
                     }
                 }); 
             } 
         }); 
-    } 
+    }
 
     // Prepare pie chart data
     var pieChartData = {
-        series: Object.values(playerStats).map(stats => stats.totalPoints),
+        series: Object.values(playerStats).map(stats => stats.matchesWon),
         labels: Object.keys(playerStats)
     };
-console.log(pieChartData);
+
     // Define the chart options
     var chartPie_options = {
         series: pieChartData.series,
         chart: {
-            width: 380,
             type: 'pie',
         },
         labels: pieChartData.labels.map((label, index) => `${label} (${Object.values(playerStats)[index].matchesWon} matches)`), // Append match count to labels
@@ -141,7 +165,7 @@ console.log(pieChartData);
             breakpoint: 480,
             options: {
                 chart: {
-                    width: 200
+                    width: '100%', // Set chart width to 100% on smaller screens
                 },
                 legend: {
                     position: 'bottom'
@@ -155,6 +179,110 @@ console.log(pieChartData);
     chartPie.render();
 </script>
 
+
+
+<!-- <script>
+var playerNames = [];
+var dataPoints = [];
+if (Array.isArray(MatchDetails)) { 
+    MatchDetails.forEach(function(entry) { 
+        if (entry.players) {
+            entry.players.forEach(function(player) { 
+                if (!playerNames.includes(player.name)) {
+                    playerNames.push(player.name);
+                    var totalPoints = player.points;
+                    dataPoints.push(totalPoints);
+                } else {
+                    var index = playerNames.indexOf(player.name);
+                    dataPoints[index] += player.points;
+                }
+            }); 
+        } 
+    }); 
+}
+
+    var Column_chart = {
+        series: [{
+            name: 'Total Points',
+            data: dataPoints
+        }],
+        chart: {
+            height: 350,
+            type: 'bar',
+        },
+        plotOptions: {
+            bar: {
+                borderRadius: 10,
+                dataLabels: {
+                    position: 'top', // top, center, bottom
+                },
+            }
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function (val) {
+                return val + "%";
+            },
+            offsetY: -20,
+            style: {
+                fontSize: '12px',
+                colors: ["#304758"]
+            }
+        },
+        xaxis: {
+            categories: playerNames,
+            position: 'top',
+            axisBorder: {
+                show: false
+            },
+            axisTicks: {
+                show: false
+            },
+            crosshairs: {
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        colorFrom: '#D8E3F0',
+                        colorTo: '#BED1E6',
+                        stops: [0, 100],
+                        opacityFrom: 0.4,
+                        opacityTo: 0.5,
+                    }
+                }
+            },
+            tooltip: {
+                enabled: true,
+            }
+        },
+        yaxis: {
+            axisBorder: {
+                show: false
+            },
+            axisTicks: {
+                show: false,
+            },
+            labels: {
+                show: false,
+                formatter: function (val) {
+                    return val + "%";
+                }
+            }
+        },
+        title: {
+            text: 'Player Performance',
+            floating: true,
+            offsetY: 330,
+            align: 'center',
+            style: {
+                color: '#444'
+            }
+        }
+    };
+
+    // Render the chart
+    var Column_chart = new ApexCharts(document.querySelector("#Column_chart"), Column_chart);
+    Column_chart.render();
+</script> -->
 
 
 
