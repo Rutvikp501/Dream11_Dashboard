@@ -21,6 +21,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 //middleware
 app.get('/leadtable',Leadtable.Leadtable);
+app.get('/allData',Leadtable.AllData);
 app.get('/stats',Leadtable.Stats);
 app.get('/upload',Leadtable.fileupload);
 app.post('/exceltojson',Leadtable.ExcelToJson);

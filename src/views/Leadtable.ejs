@@ -12,7 +12,7 @@
   border-collapse: collapse;
 }
 
-.rwd-table tr:first-child {
+.rwd-table th {
   border-top: none;
   background: linear-gradient(-45deg, #f89b29 0%, #ff0f7b 100% );
   color: #fff;
@@ -88,10 +88,7 @@
     display: table-cell;
     padding: .25em .5em;
   }
-  .rwd-table th:first-child,
-  .rwd-table td:first-child {
-    padding-left: 0;
-  }
+  
   .rwd-table th:last-child,
   .rwd-table td:last-child {
     padding-right: 0;
@@ -133,22 +130,32 @@ h1 {
     </head>
 
     <body>
-        <%- include('./partials/navbar.ejs') %>
-        <div style="margin-top: 100px;">
-            <div class="container">
-                <h1 class='lineUp'>Lead Board</h1>
-                  <table class="rwd-table" style="margin-top: 50px;">
-                    <tbody>
+      <%- include('./partials/navbar.ejs') %>
+      <div style="margin-top: 100px;">
+          <div class="container">
+              <h1 class='lineUp'>Lead Board</h1>
+              <table class="rwd-table" style="margin-top: 50px;">
+                  <thead>
+                      <tr>
+                          <th>Rank</th>
+                          <th>Name</th>
+                          <th>Points</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <% var rank = 1; %>
                       <% data.forEach(function(entry) { %>
                           <tr>
-                              <td data-th="Position"><%= entry.name %></td>
-                              <td data-th="Team Name"><%= entry.totalPoints %></td>
+                              <td data-th="Rank"><%= rank %></td>
+                              <td data-th="Name"><%= entry.name %></td>
+                              <td data-th="Points"><%= entry.totalPoints %></td>
                           </tr>
+                          <% rank++; %>
                       <% }); %>
                   </tbody>
-                  </table>
-                </div>
-        </div>
-    </body>
+              </table>
+          </div>
+      </div>
+  </body>
 
     </html>

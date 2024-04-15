@@ -327,10 +327,11 @@
 
         </script>
         <script>
+        // https://dream11-dashboard.onrender.com
           function insertMatchData(data) {
             console.log('sendDataToUpdate');
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "https://dream11-dashboard.onrender.com//insertMatchData", true);
+            xhr.open("POST", " https://dream11-dashboard.onrender.com/insertMatchData", true);
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.onreadystatechange = function () {
               if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
@@ -344,7 +345,7 @@
           function insertPlayerTotal(data) {
             console.log('sendDataToUpdate');
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "https://dream11-dashboard.onrender.com//updatePoints", true);
+            xhr.open("POST", " https://dream11-dashboard.onrender.com/updatePoints", true);
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.onreadystatechange = function () {
               if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {

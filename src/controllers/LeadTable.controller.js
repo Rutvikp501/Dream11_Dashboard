@@ -6,11 +6,21 @@ const PlayerTotal = require('../models/PlayerTotal');
 exports.Leadtable = async (req, res, next) => {
     SortmatchesData()
     MatchDetailsForAllMatches()
-    const data = await PlayerTotal.find(); 
+    const data =await MatchDetailsForAllMatches(); 
     const sortdata = await PlayerTotal.find().sort({ totalPoints: -1 }); 
 
-   // console.log(data);
+    //console.log(sortdata);
     res.render("Leadtable",{ data: sortdata })
+}
+
+exports.AllData = async (req, res, next) => {
+    SortmatchesData()
+    //MatchDetailsForAllMatches()
+    const data = await MatchDetailsForAllMatches(); 
+    const sortdata = await PlayerTotal.find().sort({ totalPoints: -1 }); 
+
+    //console.log(data);
+    res.render("AllData",{ data: data })
 }
 
 exports.Stats = async (req, res, next) => {
