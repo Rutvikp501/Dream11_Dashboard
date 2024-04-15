@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-//const DB_URL="mongodb://0.0.0.0:27017/";
+ //const DB_URL="mongodb://0.0.0.0:27017/";
 const DB_URL="mongodb+srv://rutvikgainn:Dream11_Dashboard@ipl11.0m0z4yx.mongodb.net/?retryWrites=true&w=majority&appName=IPL11";
 //const DB_name="IPL11";
 

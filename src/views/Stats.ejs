@@ -1,17 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player Performance Chart</title>
-    <!-- Include ApexCharts library -->
+<%- include('./partials/header.ejs') %>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
-<body>
-    <!-- //<%- include('./partials/navbar.ejs') %> -->
+<body style="background-color: #fff !important;">
+    <%- include('./partials/navbar.ejs') %>
     <h1>Player Performance Chart</h1>
     <!-- Container for the chart -->
-    <div id="chart"></div>
+   <div style="margin-top: 100px; background-color: #fff;" >
+
+        <div id="chart"></div>
+    </div> 
+   <!-- <div style="margin-top: 100px; background-color: #fff;" >
+
+    <div id="chartPie"></div>
+    </div>  -->
 
     <!-- Embedding the MatchDetails data into the HTML -->
     <script>
@@ -92,5 +93,71 @@
         const chart = new ApexCharts(document.querySelector("#chart"), options);
         chart.render();
     </script>
+
+<script>
+    // Define the series data
+    const data = <%- JSON.stringify(MatchDetails) %>;
+    var playerStats = {};
+
+    // Iterate over the data to extract player names, points, and matches won
+    if (Array.isArray(data)) { 
+        data.forEach(function(entry) { 
+            if (entry.players) {
+                entry.players.forEach(function(player) { 
+                    if (!playerStats[player.name]) {
+                        playerStats[player.name] = {
+                            totalPoints: 0,
+                            matchesWon: 0,
+                            highestPoints: 0
+                        };
+                    }
+                    playerStats[player.name].totalPoints += player.points; // Accumulate total points
+                    if (player.points > playerStats[player.name].highestPoints) {
+                        playerStats[player.name].highestPoints = player.points; // Update highest points for the player
+                        playerStats[player.name].matchesWon = 1; // Set matches won to 1 for the player
+                    } else if (player.points === playerStats[player.name].highestPoints) {
+                        playerStats[player.name].matchesWon++; // Increment matches won if points are equal (tie)
+                    }
+                }); 
+            } 
+        }); 
+    } 
+
+    // Prepare pie chart data
+    var pieChartData = {
+        series: Object.values(playerStats).map(stats => stats.totalPoints),
+        labels: Object.keys(playerStats)
+    };
+console.log(pieChartData);
+    // Define the chart options
+    var chartPie_options = {
+        series: pieChartData.series,
+        chart: {
+            width: 380,
+            type: 'pie',
+        },
+        labels: pieChartData.labels.map((label, index) => `${label} (${Object.values(playerStats)[index].matchesWon} matches)`), // Append match count to labels
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                chart: {
+                    width: 200
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }]
+    };
+
+    // Render the pie chart
+    var chartPie = new ApexCharts(document.querySelector("#chartPie"), chartPie_options);
+    chartPie.render();
+</script>
+
+
+
+
+
 </body>
 </html>
