@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IPL 11</title>
 <style>
+    
      .container {
             max-width: 800px;
             margin: 0 auto;
@@ -12,9 +13,10 @@
 </style>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
-<%- include('./partials/navbar.ejs') %>
-<body style="background-color: #fff !important; padding-top: 80px;">
-    <!-- <div style=" max-width: 1000px;    margin: 0 auto;">
+
+<body style="background-color: #83ecff !important; ">
+    <%- include('./partials/navbar.ejs') %>
+    <div style=" max-width: 1000px;    margin: 0 auto;">
         <div style="margin-top: 45px; background-color: #fff; padding: 20px; border-radius: 10px;">
             
             <div id="chart"></div>
@@ -27,16 +29,17 @@
                     <div id="chartPie"></div>
                 </div>
             </div>
-            <div style="width: calc(50% - 10px);">
+            <!-- <div style="width: calc(50% - 10px);">
                 <div style="margin-top: 20px; background-color: #fff; padding: 20px; border-radius: 10px;">
                     <div id="Column_chart"></div>
                 </div>
-            </div> 
+            </div>  -->
         </div>
-    </div> -->
-    <div id="chart"></div>
+    </div>
 
-    <div id="chartPie"></div>
+    <!-- <div id="chart"></div>
+
+    <div id="chartPie"></div> -->
 
     <script>
         // Get MatchDetails data from server-side rendering
@@ -158,6 +161,7 @@
     var chartPie_options = {
         series: pieChartData.series,
         chart: {
+            width: 450,
             type: 'pie',
         },
         labels: pieChartData.labels.map((label, index) => `${label} (${Object.values(playerStats)[index].matchesWon} matches)`), // Append match count to labels
@@ -165,7 +169,7 @@
             breakpoint: 480,
             options: {
                 chart: {
-                    width: '100%', // Set chart width to 100% on smaller screens
+                    width: 200
                 },
                 legend: {
                     position: 'bottom'

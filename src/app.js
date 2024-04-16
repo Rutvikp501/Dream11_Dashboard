@@ -46,7 +46,6 @@ app.get('/close-it',(req,res)=>{
     setTimeout(() => {
         process.exit(0)
     }, 30000);
-
 })
 app.listen(port,()=>{
     try {

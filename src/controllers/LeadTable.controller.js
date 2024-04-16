@@ -60,6 +60,7 @@ exports.fileupload = async (req, res, next) => {
         res.status(500).send('Internal Server Error');
     }
 }
+
 exports.ExcelToJson = async (req, res, next) => {
     try {
         const jsonData = req.body; // Assuming req.body contains the JSON data from frontend
