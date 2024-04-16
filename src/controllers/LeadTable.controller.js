@@ -250,7 +250,6 @@ async function updatePlayerTotal(playerName, totalPoints) {
     } catch (error) {
         console.error(`Error updating player total points for ${playerName}:`, error);
     }
-    console.log(`Player total points updated successfully`);
 }
 
 
@@ -294,7 +293,6 @@ exports.insertPlayerTotal =  async (req, res) => {
 
         // Execute bulk write operations
         await PlayerTotal.bulkWrite(bulkOperations);
-        console.log('Player total points updated successfully');
     } catch (error) {
         console.error('Error updating player total points:', error);
     }

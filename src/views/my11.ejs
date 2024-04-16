@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme=None>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream11</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N"
+        crossorigin="anonymous"></script>
+</head>
+
+<style>
+    .accordion-button:focus {
+        box-shadow: none;
+        border-color: rgba(0, 0, 0, .125);
+        background-color: white;
+        color: black;
+    }
+</style>
+<body>
+    <%- include('./partials/navbar.ejs') %>
+    <div class="container my-5 py-5">
+        <h2> Match Player Points </h2>
+        <div class="accordion my-5" id="accordionExample">
+            <% keys.map((match)=> { %>
+                <% let table_data=data[match]; table_data.map((table)=> {
+                   if(table.seriesName.includes("TATA IPL")){ %>
+                    <div class="accordion-item">
+                        <h4 class="accordion-header" id="heading<%- table.matchId %>">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#<%- table.matchId %>" aria-expanded="true"
+                                aria-controls="<%- table.matchId %>" onclick="handleGetFunction(<%- table.matchId %>)">
+                                <%- table.name %>
+                                    <span class="text-muted mx-3"><%- new Date(table.matchStartTime) %></span>
+                            </button>
+                        </h4>
+                        <div id="<%- table.matchId %>" class="accordion-collapse collapse"
+                            aria-labelledby="heading<%- table.matchId %>" data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Player</th>
+                                            <th scope="col">Points</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-<%- table.matchId %>">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+               <%    }
+                    %>
+  
+                    <% }) %>
+                        <% }) %>
+        </div>
+
+    </div>
+</body>
+
+<script>
+    async function handleGetFunction(matchId) {
+        try {
+            const response = await fetch(`/movie?matchid=${matchId}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const movies = await response.json();
+            const tbody = document.getElementById("tbody" + "-" + matchId);
+            let sortedMovies=movies.players.sort((a,b) =>  b.points-a.points)
+            sortedMovies.forEach(movie => {
+                const tr = document.createElement("tr");
+                const td1 = document.createElement("td");
+                const td2 = document.createElement("td");
+                td1.textContent = movie.name;
+                td2.textContent = movie.points;
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tbody.appendChild(tr);
+            });
+            console.log(movies)
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+</script>
+
+</html>
