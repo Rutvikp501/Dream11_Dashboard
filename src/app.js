@@ -34,7 +34,7 @@ app.post('/updatePoints', Leadtable.UpdatePoints);
 app.post('/insertMatchData', Leadtable.insertMatchData);
 
 //Data Fetching
-app.get("/getMatches", DataFetching.GetMatchPlayerPoints);
+app.get("/getMatches", DataFetching.GetMatches);
 
 app.get("/getMatchPlayerPoints", DataFetching.GetMatchPlayerPoints)
 

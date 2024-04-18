@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme=None>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -21,75 +21,75 @@
         color: black;
     }
 </style>
+
 <body>
-    <%- include('./partials/navbar.ejs') %>
+    <% include('./partials/navbar.ejs') %>
     <div class="container my-5 py-5">
-        <h2> Match Player Points </h2>
+        <h2>Match Player Points</h2>
         <div class="accordion my-5" id="accordionExample">
-            <% keys.map((match)=> { %>
-                <% let table_data=data[match]; table_data.map((table)=> {
-                   if(table.seriesName.includes("TATA IPL")){ %>
-                    <div class="accordion-item">
-                        <h4 class="accordion-header" id="heading<%- table.matchId %>">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#<%- table.matchId %>" aria-expanded="true"
-                                aria-controls="<%- table.matchId %>" onclick="handleGetFunction(<%- table.matchId %>)">
-                                <%- table.name %>
-                                    <span class="text-muted mx-3"><%- new Date(table.matchStartTime) %></span>
-                            </button>
-                        </h4>
-                        <div id="<%- table.matchId %>" class="accordion-collapse collapse"
-                            aria-labelledby="heading<%- table.matchId %>" data-bs-parent="#accordionExample">
-                            <div class="accordion-body">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Player</th>
-                                            <th scope="col">Points</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tbody-<%- table.matchId %>">
+            <% keys.forEach(match => { %>
+            <% let matchData = data[match]; %>
+            <% matchData.forEach(matchItem => { %>
+            <% if (matchItem.seriesName.includes("TATA IPL")) { %>
+            <div class="accordion-item">
+                <h4 class="accordion-header" id="heading<%- matchItem.matchId %>">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapse<%- matchItem.matchId %>" aria-expanded="true"
+                        aria-controls="collapse<%- matchItem.matchId %>"
+                        onclick="handleGetFunction(<%- matchItem.matchId %>)">
+                        <%= matchItem.name %>
+                        <span class="text-muted mx-3"><%= new Date(matchItem.matchStartTime) %></span>
+                    </button>
+                </h4>
+                <div id="collapse<%- matchItem.matchId %>" class="accordion-collapse collapse"
+                    aria-labelledby="heading<%- matchItem.matchId %>" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Player</th>
+                                    <th scope="col">Points</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody<%- matchItem.matchId %>">
 
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                            </tbody>
+                        </table>
                     </div>
-               <%    }
-                    %>
-  
-                    <% }) %>
-                        <% }) %>
+                </div>
+            </div>
+            <% } %>
+            <% }) %>
+            <% }) %>
         </div>
-
     </div>
-</body>
 
-<script>
-    async function handleGetFunction(matchId) {
-        try {
-            const response = await fetch(`/movie?matchid=${matchId}`);
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+    <script>
+        async function handleGetFunction(matchId) {
+            try {
+                const response = await fetch(`/GetMatchPlayerPoints?matchid=${matchId}`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const matchPlayerPoints = await response.json();
+                const tbody = document.getElementById("tbody" + matchId);
+                tbody.innerHTML = ""; // Clear existing data
+                matchPlayerPoints.forEach(player => {
+                    const tr = document.createElement("tr");
+                    const td1 = document.createElement("td");
+                    const td2 = document.createElement("td");
+                    td1.textContent = player.name;
+                    td2.textContent = player.points;
+                    tr.appendChild(td1);
+                    tr.appendChild(td2);
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
             }
-            const movies = await response.json();
-            const tbody = document.getElementById("tbody" + "-" + matchId);
-            let sortedMovies=movies.players.sort((a,b) =>  b.points-a.points)
-            sortedMovies.forEach(movie => {
-                const tr = document.createElement("tr");
-                const td1 = document.createElement("td");
-                const td2 = document.createElement("td");
-                td1.textContent = movie.name;
-                td2.textContent = movie.points;
-                tr.appendChild(td1);
-                tr.appendChild(td2);
-                tbody.appendChild(tr);
-            });
-            console.log(movies)
-        } catch (error) {
-            console.error('Error fetching data:', error);
         }
-    }
-</script>
+    </script>
+
+</body>
 
 </html>
